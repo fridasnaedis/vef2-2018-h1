@@ -6,7 +6,7 @@ CREATE TABLE library (
   description text,
   category text,
   isbn10 char(10),
-  published date,
+  published varchar(10),
   pagecount integer,
-  language text
+  language varchar(2)
 );

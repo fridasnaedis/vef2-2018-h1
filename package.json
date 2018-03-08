@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/fridasnaedis/vef2-2018-h1#readme",
   "dependencies": {
+    "csvtojson": "^1.1.9",
     "dotenv": "^5.0.1",
     "express": "^4.16.2",
     "passport": "^0.4.0",
