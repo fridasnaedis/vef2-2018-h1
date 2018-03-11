@@ -8,6 +8,12 @@ const myUsers = require('./myUsers');
 
 const app = express();
 
+app.use(myUsers);
+app.use(users);
+app.use(books);
+app.use(categories);
+app.use(login);
+
 app.use(express.json());
 app.use('/users', users);
 app.use('/books', books);
