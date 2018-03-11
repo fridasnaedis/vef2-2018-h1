@@ -9,7 +9,6 @@ const myUsers = require('./myUsers');
 const app = express();
 
 app.use(express.json());
-app.use('/', api);
 app.use('/users', users);
 app.use('/books', books);
 app.use('/users/me', myUsers);
