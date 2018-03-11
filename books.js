@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
+cosnt xss = require('xss');
+
 // Skilar síðu af bókum
 function getBooks(req, res) {
   // TODO
