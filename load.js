@@ -8,7 +8,7 @@ csv()
     loadToDb(jsonArrayObj);
   })
 
-const connectionString = process.env.DATABASE_URL || 'postgres://postgres:@localhost/postgres';
+const connectionString = process.env.DATABASE_URL || 'postgres://postgres:@localhost/h1';
 
 async function query(q, values = []) {
     const client = new Client({connectionString});
