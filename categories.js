@@ -1,17 +1,19 @@
-//TODO setja inn rétt imports
+
 const express = require('express');
 const router = express.Router();
+const categoriesData = require('./categoriesData');
 
-const xss = require('xss');
 
 // Skilar síðu af flokkum
-function getCategories(req, res) {
-    // TODO
+async function getCategories(req, res) {
+    const categories = getAllCategories();
+    return categories;
 }
 
 // Býr til nýjan flokk og skilar
 function postCategories(req, res) {
-    // TODO
+    const category = PostACategory();
+    return categories;
 }
 
 /* todo útfæra api */
