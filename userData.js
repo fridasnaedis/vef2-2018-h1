@@ -24,7 +24,7 @@ async function query(q, values = []) {
  * @returns {Promise} Promise representing an array of all users
  */
 async function getAllUsers() {
-    const q = 'SELECT * FROM users;';
+    const q = 'SELECT id, username, name, photourl FROM users;';
     const result = await query(q);
     return result.rows;
 }
@@ -37,7 +37,7 @@ async function getAllUsers() {
  * @returns {Promise} Promise representing the user object or null if not found
  */
 async function getOneUser(id) {
-    const q = 'SELECT * FROM users WHERE id=$1;';
+    const q = 'SELECT id, username, name, photourl FROM users WHERE id=$1;';
     const values = [id];
     const result = await query(q, values);
     return result.rows;

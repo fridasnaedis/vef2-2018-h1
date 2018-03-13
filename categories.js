@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
-cosnt xss = require('xss');
+const xss = require('xss');
 
 // Skilar síðu af flokkum
 function getCategories(req, res) {
