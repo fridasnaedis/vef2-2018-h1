@@ -43,7 +43,6 @@ async function postACategory({id, category} = {}) {
     return result.rows;
 }
 
-
 module.exports = {
     getAllCategories,
     postCategorie,
