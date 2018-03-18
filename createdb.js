@@ -5,7 +5,7 @@ const util = require('util');
 
 const { Client } = require('pg');
 
-const connectionString = process.env.DATABASE_URL || 'postgres://:@localhost/h1';
+const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/h1';
 
 const readFileAsync = util.promisify(fs.readFile);
 

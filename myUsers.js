@@ -11,7 +11,7 @@ function getMyUser(req, res) {
 // þ.e.a.s. nafn eða lykilorð, ef þau eru gild
 function patchMyUser(req, res) {
     // TODO
-}
+}ad
 
 // setur eða uppfærir mynd fyrir notanda í gegnum Cloudinary og skilar slóð
 function postMyUserProfile(req, res) {
