@@ -7,7 +7,7 @@ function getMyUser(req, res) {
     // TODO
 }
 
-// Uppfærir sendar upplýsingar um notanda fyrirutan notendanafn, 
+// Uppfærir sendar upplýsingar um notanda fyrir utan notendanafn, 
 // þ.e.a.s. nafn eða lykilorð, ef þau eru gild
 function patchMyUser(req, res) {
     // TODO

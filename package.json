@@ -5,7 +5,8 @@
   "main": ".eslintrc.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "load": "node load.js"
+    "load": "node load.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",

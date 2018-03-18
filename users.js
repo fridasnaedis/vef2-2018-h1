@@ -1,20 +1,35 @@
 const express = require('express');
+const { 
+    getAllUsers,
+    getOneUser,
+    getReadBooks,
+    } =  require('./userData');
+
 
 const router = express.Router();
 
 // Skilar síðu af notendum (ekkert lykilorð)
-function getUsers(req, res) {
-    // TODO
+async function getUsers(req, res) {
+    const users = await getAllUsers();
+    console.log(users);
+    // return users;
+    res.status(200).json(users);
 }
 
 // Skilar stökum notendum ef til (ekkert lykilorð)
-function getUsersById(req, res) {
-    // TODO
+async function getUsersById(req, res) {
+    const { id } = req.params;
+    const user = await getOneUser(id); 
+    // return user; 
+    res.status(200).json(user);
 }
 
 // Skilar síðu af bókum sem uppfylla leitarskilyrði, sjá að neðan
-function getReadBooksByUsersId(req, res) {
-    // TODO
+async function getReadBooksByUsersId(req, res) {
+    const { id } = req.params;
+    const readBooks = await getReadBooks(id); 
+    // return readBooks; 
+    res.status(200).json(readBooks);
 }
 
 /* todo útfæra api */
