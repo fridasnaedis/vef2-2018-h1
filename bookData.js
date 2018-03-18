@@ -25,31 +25,33 @@ async function getAllBooks() {
     return result.rows;
 }
 
-async function postABook({id, title, isbn13, author, description, category, isbn10, published, pagecount, language}) {
+async function postABook({id, title, isbn13, author, description, category, isbn10, published, pagecount, language} = {}) {
     const q = 'INSERT INTO library (id, title, isbn13, author, description, category, isbn10, published, pagecount, language) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING*;';
     const values = [id, title, isbn13, author, description, category, isbn10, published, pagecount, language];
-    const result = await query = await query(q, values);
+    const result = await query(q, values);
     return result.rows;
 }
 
 async function searchAllBooks(query) {
+    
+}
+
+async function getABookById({id} = {}) {
+    const q = 'SELECT * FROM library WHERE id =' + id;
+    const result = await query(q);
+    return result.rows;
+}
+
+async function patchABookById({id} = {}) {
 
 }
 
-async function getABookById(id) {
-
-}
-
-async function patchABookById(id) {
-
-}
-
-module.exports {
+module.exports = {
     getAllBooks,
     postABook,
     searchAllBooks,
     getABookById,
     patchABookById,
-}
+};
 
 

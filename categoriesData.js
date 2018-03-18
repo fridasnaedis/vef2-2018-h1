@@ -36,7 +36,6 @@ async function getAllCategories() {
  * 
  */
 async function postACategory({id, category} = {}) {
-    //TODO Validation
     const q = 'INSERT INTO categories(id, category) VALUES($1, $2) RETURNING*;';
     const values = [id, category];
     const result = await query(q, values);
