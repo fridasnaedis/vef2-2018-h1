@@ -4,32 +4,32 @@ const router = express.Router();
 
 // skilar innskráðum notanda þ.e.a.s. þér
 function getMyUser(req, res) {
-    // TODO
+  // TODO
 }
 
-// Uppfærir sendar upplýsingar um notanda fyrir utan notendanafn, 
+// Uppfærir sendar upplýsingar um notanda fyrir utan notendanafn,
 // þ.e.a.s. nafn eða lykilorð, ef þau eru gild
 function patchMyUser(req, res) {
-    // TODO
-}ad
+  // TODO
+}
 
 // setur eða uppfærir mynd fyrir notanda í gegnum Cloudinary og skilar slóð
 function postMyUserProfile(req, res) {
-    // TODO
+  // TODO
 }
 
 // skilar síðu af lesnum bókum innskráðs notanda
 function getMyReadBooks(req, res) {
-    // TODO
+  // TODO
 }
 
 // Býr til nýjan lestur á bók og skilar
 function postMyReadBooks(req, res) {
-    // TODO
+  // TODO
 }
 
 function deleteMyReadBooksById(req, res) {
-    // TODO
+  // TODO
 }
 
 /* todo útfæra api */
