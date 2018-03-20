@@ -18,6 +18,6 @@ function postCategories(req, res) {
 
 /* todo útfæra api */
 router.get('/categories', getCategories);
-router.post('/categories', postCategories)
+router.post('/categories', postCategories);
 
 module.exports = router;
