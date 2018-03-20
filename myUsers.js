@@ -1,36 +1,61 @@
 const express = require('express');
+const { requireAuthentication } = require('./authentication');
+
 
 const router = express.Router();
 
-const { requireAuthentication } = require('./authentication');
+const { 
+  getAllUsers,
+  getOneUser,
+  getReadBooks,
+  patchUser,
+  } =  require('./userData');
 
-// skilar innskráðum notanda þ.e.a.s. þérr
-function getMyUser(req, res) {
-  console.log(req.user[0].id);
+
+
+// skilar innskráðum notanda þ.e.a.s. þér
+async function getMyUser(req, res) {
+
+  const id = req.user[0].id; 
+  // check login --- get id --- TODO
+
+  const user = await getOneUser(id); 
+  res.status(200).json(user);
 }
 
 // Uppfærir sendar upplýsingar um notanda fyrir utan notendanafn,
 // þ.e.a.s. nafn eða lykilorð, ef þau eru gild
-function patchMyUser(req, res) {
-  // TODO
+async function patchMyUser(req, res) {
+
+  // check login --- get id --- TODO
+  const id = req.user[0].id; 
+
+  const id = 1; 
+  const data = req.body;
+
+  const updatedUser = await patchUser(id, data);
+
+  res.status(200).json(updatedUser);
+
+
 }
 
 // setur eða uppfærir mynd fyrir notanda í gegnum Cloudinary og skilar slóð
-function postMyUserProfile(req, res) {
+async function postMyUserProfile(req, res) {
   // TODO
 }
 
 // skilar síðu af lesnum bókum innskráðs notanda
-function getMyReadBooks(req, res) {
+async function getMyReadBooks(req, res) {
   // TODO
 }
 
 // Býr til nýjan lestur á bók og skilar
-function postMyReadBooks(req, res) {
+async function postMyReadBooks(req, res) {
   // TODO
 }
 
-function deleteMyReadBooksById(req, res) {
+async function deleteMyReadBooksById(req, res) {
   // TODO
 }
 
