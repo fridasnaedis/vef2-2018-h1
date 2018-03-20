@@ -33,7 +33,7 @@ async function postRegister(req, res) {
   const previousUser = await getByUsername(username);
   if (!previousUser && username && name && password) {
     await createUser(username, password, name);
-    return res.status(201);
+    return res.status(201).json({ message: `successfully added user ${username}` });
   }
   return res.status(409).json({ error: 'Username already exists or required data missing' });
 }
