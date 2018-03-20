@@ -2,9 +2,11 @@ const express = require('express');
 
 const router = express.Router();
 
-// skilar innskráðum notanda þ.e.a.s. þér
+const { requireAuthentication } = require('./authentication');
+
+// skilar innskráðum notanda þ.e.a.s. þérr
 function getMyUser(req, res) {
-  // TODO
+  console.log(req.user[0].id);
 }
 
 // Uppfærir sendar upplýsingar um notanda fyrir utan notendanafn,
@@ -33,11 +35,10 @@ function deleteMyReadBooksById(req, res) {
 }
 
 /* todo útfæra api */
-router.get('/users/me', getMyUser);
-router.patch('/users/me', patchMyUser);
-router.post('users/me/profile', postMyUserProfile);
-router.get('/users/me/read', getMyReadBooks);
-router.post('/users/me/read', postMyReadBooks);
-router.delete('/users/me/read/:id', deleteMyReadBooksById);
-
+router.get('/users/me', requireAuthentication, getMyUser);
+router.patch('/users/me', requireAuthentication, patchMyUser);
+router.post('users/me/profile', requireAuthentication, postMyUserProfile);
+router.get('/users/me/read', requireAuthentication, getMyReadBooks);
+router.post('/users/me/read', requireAuthentication, postMyReadBooks);
+router.delete('/users/me/read/:id', requireAuthentication, deleteMyReadBooksById);
 module.exports = router;
