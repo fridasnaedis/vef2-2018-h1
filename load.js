@@ -2,12 +2,6 @@ const { Client } = require('pg');
 
 const csv = require('csvtojson');
 
-csv()
-  .fromFile('./data/books.csv')
-  .on('end_parsed', (jsonArrayObj) => { 
-    loadToDb(jsonArrayObj);
-  });
-
 const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost/h1';
 
 async function query(q, values = []) {
@@ -40,10 +34,16 @@ async function loadToDb(jsonObj) {
       categories.push(book.category);
     }
 
-    const q = 'INSERT INTO library (title, isbn13, author, description, category, isbn10, published, pagecount, language) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);';
-    const values = [book.title, book.isbn13, book.author, book.description, book.category, book.isbn10, book.published, book.pagecount, book.language];
-
+    const q = `INSERT INTO library (title, isbn13, author, description, category, isbn10, published, pagecount, language) 
+      VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+    const values = [book.title, book.isbn13, book.author, book.description, book.category,
+      book.isbn10, book.published, book.pagecount, book.language];
     await query(q, values);
   }
 }
 
+csv()
+  .fromFile('./data/books.csv')
+  .on('end_parsed', (jsonArrayObj) => {
+    loadToDb(jsonArrayObj);
+  });

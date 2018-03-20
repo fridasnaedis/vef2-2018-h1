@@ -7,8 +7,6 @@ async function query(q, values = []) {
   const client = new Client(connectionString);
   await client.connect();
 
-  console.log(q);
-
   let result;
   try {
     result = await client.query(q, values);
@@ -65,7 +63,7 @@ async function getOneUser(id) {
   const q = 'SELECT id, username, name, photourl FROM users WHERE id=$1;';
   const values = [id];
   const result = await query(q, values);
-  return result.rows;
+  return result.rows[0];
 }
 
 /**
@@ -82,10 +80,18 @@ async function getReadBooks(id) {
   return result.rows;
 }
 
+/**
+ * Create a new user.
+ *
+ * @param {username} username - unique username, {password} - password, {name} - name
+ *
+ * @returns {Promise} Promise representing a new user
+ */
 async function createUser(username, password, name) {
   const hashedPassword = await bcrypt.hash(password, 11);
+
   // þarf ekki að checka hér á inputum ?? ------- TODO
-  const q = 'INSERT INTO users (username, password, name) VALUES ($1, $2, $3) RETURNING *';
+  const q = 'INSERT INTO users (username, password, name) VALUES ($1, $2, $3) RETURNING id, username, name, photourl;';
 
   const result = await query(q, [username, hashedPassword, name]);
 
@@ -95,7 +101,7 @@ async function createUser(username, password, name) {
 /**
  * Patch logged in user.
  *
- * @param {id, name, password} id - Id of user, name -new name, password - new password
+ * @param {number} id - Id of user, {string} name -new name, {string} password - new password
  *  if name or pw is null = dont update, if not allowed return error
  *
  * @returns {Promise} Promise representing the updated user
@@ -103,24 +109,84 @@ async function createUser(username, password, name) {
 async function patchUser(id, data) {
   const toUpdate = [];
 
-  for (var key in data) {
-    if (data.hasOwnProperty(key)) {
-      if (key === "password") {
-        // Hash password
-        const hashedPassword = await bcrypt.hash(data[key], 11);
-        data[key] = hashedPassword;
-      }
-      toUpdate.push(key + " = " + "'" + data[key] + "'");
+  Object.keys(data).forEach((key) => {
+    if (key === 'password') {
+      toUpdate.push(key, bcrypt.hash(data[key], 11));
+    } else {
+      toUpdate.push(key, data[key]);
     }
-  }
+  });
 
-  const q = `UPDATE users SET ${[...toUpdate]} WHERE id = $1 RETURNING *`;
-  const values = [id];
-  const result = await query(q, values);
-
-  return result.rows;
+  const results = await Promise.all(toUpdate)
+    .then(async (update) => {
+      const values = [id];
+      const updateStrings = [];
+      for (let i = 0; i < update.length; i += 2) {
+        if (update[i + 1] === '') {
+          return { error: 'Input empty or not allowed' };
+        }
+        updateStrings.push(`${update[i]} = '${update[i + 1]}'`);
+      }
+      if (updateStrings.length > 1) {
+        const q = `UPDATE users SET ${[...updateStrings]}  WHERE id = $1 RETURNING id, username, name, photourl;`;
+        const result = await query(q, values);
+        return result.rows;
+      }
+      return { error: 'Input empty or not allowed' };
+    });
+  return results;
 }
 
+/**
+ * Change user photo.
+ *
+ * @param {number} id - Id of user, {string} photoUrl - path to user photo
+ *
+ * @returns {Promise} Promise representing updated photo-url
+ */
+async function postPhotoUrl(id, url) {
+  const q = 'UPDATE users SET photourl = $2 WHERE id=$1 RETURNING photourl;';
+  const values = [id, url];
+  const result = await query(q, values);
+  return result.rows[0];
+}
+
+/**
+ * Add a book to user read books
+ *
+ * @param {number} id - Id of user, {obj} data
+ * data:{{number} book_id - id of book, {number} stars - star rating, {string} review - user review}
+ *
+ * @returns {Promise} Promise representing added book to read books
+ */
+async function postReadBooks(id, data) {
+  const keys = [];
+  const values = [id];
+  const errors = [];
+
+  Object.keys(data).forEach((key) => {
+    if (key === 'stars' && !(data[key] <= 5 && data[key] >= 1)) {
+      errors.push('Star rating must be integer from 1 to 5');
+    }
+    if (key === 'review') {
+      values.push(`'${data[key]}'`);
+    } else {
+      values.push(data[key]);
+    }
+    keys.push(key);
+  });
+
+  if (!(keys.includes('book_id') && keys.includes('stars'))) {
+    errors.push('book_id and stars cant be null');
+  }
+
+  if (errors.length >= 1) {
+    return { error: errors };
+  }
+  const q = `INSERT INTO readbooks (user_id, ${[...keys]}) VALUES (${[...values]}) RETURNING *;`;
+  const result = await query(q);
+  return result.rows[0];
+}
 
 module.exports = {
   getAllUsers,
@@ -130,4 +196,6 @@ module.exports = {
   getByUsername,
   comparePasswords,
   patchUser,
+  postPhotoUrl,
+  postReadBooks,
 };
