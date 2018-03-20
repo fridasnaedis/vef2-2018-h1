@@ -7,6 +7,8 @@ async function query(q, values = []) {
   const client = new Client(connectionString);
   await client.connect();
 
+  console.log(q);
+
   let result;
   try {
     result = await client.query(q, values);
@@ -82,13 +84,43 @@ async function getReadBooks(id) {
 
 async function createUser(username, password, name) {
   const hashedPassword = await bcrypt.hash(password, 11);
-
+  // þarf ekki að checka hér á inputum ?? ------- TODO
   const q = 'INSERT INTO users (username, password, name) VALUES ($1, $2, $3) RETURNING *';
 
   const result = await query(q, [username, hashedPassword, name]);
 
   return result.rows[0];
 }
+
+/**
+ * Patch logged in user.
+ *
+ * @param {id, name, password} id - Id of user, name -new name, password - new password
+ *  if name or pw is null = dont update, if not allowed return error
+ *
+ * @returns {Promise} Promise representing the updated user
+ */
+async function patchUser(id, data) {
+  const toUpdate = [];
+
+  for (var key in data) {
+    if (data.hasOwnProperty(key)) {
+      if (key === "password") {
+        // Hash password
+        const hashedPassword = await bcrypt.hash(data[key], 11);
+        data[key] = hashedPassword;
+      }
+      toUpdate.push(key + " = " + "'" + data[key] + "'");
+    }
+  }
+
+  const q = `UPDATE users SET ${[...toUpdate]} WHERE id = $1 RETURNING *`;
+  const values = [id];
+  const result = await query(q, values);
+
+  return result.rows;
+}
+
 
 module.exports = {
   getAllUsers,
@@ -97,4 +129,5 @@ module.exports = {
   createUser,
   getByUsername,
   comparePasswords,
+  patchUser,
 };
