@@ -27,13 +27,21 @@ async function getAllBooks() {
 async function postABook({
   title, isbn13, author, description, category, isbn10, published, pagecount, language,
 } = {}) {
-  const q = 'INSERT INTO library (id, title, isbn13, author, description, category, isbn10, published, pagecount, language) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING*;';
-  const values = [title, isbn13, author, description, category, isbn10, published, pagecount, language];
+  const q = 'INSERT INTO library (title, isbn13, author, description, category, isbn10, published, pagecount, language) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING*;';
+  const values = [title,
+    isbn13,
+    author,
+    description,
+    category,
+    isbn10,
+    published,
+    pagecount,
+    language];
   const result = await query(q, values);
   return result.rows;
 }
 
-async function searchAllBooks(query) {
+async function searchAllBooks(q) {
 
 }
 

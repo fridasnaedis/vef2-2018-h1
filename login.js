@@ -12,7 +12,7 @@ const {
 
 const {
   JWT_SECRET: jwtSecret,
-  TOKEN_LIFETIME: tokenLifetime = 20,
+  TOKEN_LIFETIME: tokenLifetime = 2000,
 } = process.env;
 
 const jwtOptions = {
@@ -31,15 +31,16 @@ async function comparePasswords(hash, password) {
 async function postRegister(req, res) {
   const { username, name, password } = req.body;
   const previousUser = await getByUsername(username);
-  if (!previousUser) {
+  if (!previousUser && username && name && password) {
     await createUser(username, password, name);
+    return res.status(201);
   }
+  return res.status(409).json({ error: 'Username already exists or required data missing' });
 }
 
 // Post með notendanafni og lykilorði, skilar token
 async function postLogin(req, res) {
   const { username, password } = req.body;
-
   const user = await getByUsername(username);
 
   if (!user) {
@@ -56,7 +57,6 @@ async function postLogin(req, res) {
 
   return res.status(401).json({ error: 'Invalid password' });
 }
-
 
 /* todo útfæra api */
 router.post('/register', postRegister);

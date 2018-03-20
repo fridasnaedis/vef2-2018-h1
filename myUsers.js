@@ -1,4 +1,6 @@
 const express = require('express');
+const { requireAuthentication } = require('./authentication');
+
 
 const router = express.Router();
 
@@ -14,7 +16,7 @@ const {
 // skilar innskráðum notanda þ.e.a.s. þér
 async function getMyUser(req, res) {
 
-  const id = 1; 
+  const id = req.user[0].id; 
   // check login --- get id --- TODO
 
   const user = await getOneUser(id); 
@@ -26,16 +28,14 @@ async function getMyUser(req, res) {
 async function patchMyUser(req, res) {
 
   // check login --- get id --- TODO
+  const id = req.user[0].id; 
+
   const id = 1; 
   const data = req.body;
 
   const updatedUser = await patchUser(id, data);
 
   res.status(200).json(updatedUser);
-
-
-
-
 
 
 }
@@ -60,11 +60,10 @@ async function deleteMyReadBooksById(req, res) {
 }
 
 /* todo útfæra api */
-router.get('/users/me', getMyUser);
-router.patch('/users/me', patchMyUser);
-router.post('users/me/profile', postMyUserProfile);
-router.get('/users/me/read', getMyReadBooks);
-router.post('/users/me/read', postMyReadBooks);
-router.delete('/users/me/read/:id', deleteMyReadBooksById);
-
+router.get('/users/me', requireAuthentication, getMyUser);
+router.patch('/users/me', requireAuthentication, patchMyUser);
+router.post('users/me/profile', requireAuthentication, postMyUserProfile);
+router.get('/users/me/read', requireAuthentication, getMyReadBooks);
+router.post('/users/me/read', requireAuthentication, postMyReadBooks);
+router.delete('/users/me/read/:id', requireAuthentication, deleteMyReadBooksById);
 module.exports = router;

@@ -9,6 +9,7 @@ const books = require('./books');
 const login = require('./login');
 const categories = require('./categories');
 const myUsers = require('./myUsers');
+const userData = require('./userData');
 
 const {
   PORT: port = 3000,
@@ -30,7 +31,7 @@ const jwtOptions = {
 };
 
 async function strat(data, next) {
-  const user = await users.findById(data.id);
+  const user = await userData.getOneUser(data.id);
 
   if (user) {
     next(null, user);
@@ -49,26 +50,6 @@ app.get('/', (req, res) => {
     admin: '/admin',
   });
 });
-
-function requireAuthentication(req, res, next) {
-  return passport.authenticate(
-    'jwt',
-    { session: false },
-    (err, user, info) => {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        const error = info.name === 'TokenExpiredError' ? 'expired token' : 'invalid token';
-        return res.status(401).json({ error });
-      }
-
-      req.user = user;
-      next();
-    }
-  )(req, res, next);
-}
 
 app.use(myUsers);
 app.use(users);
@@ -104,3 +85,4 @@ app.use(errorHandler);
 app.listen(port, () => {
   console.info(`Server running at http://${host}:${port}/`);
 });
+
