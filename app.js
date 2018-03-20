@@ -1,12 +1,74 @@
 require('dotenv').config();
+const passport = require('passport');
 const express = require('express');
+
+const { Strategy, ExtractJwt } = require('passport-jwt');
+
 const users = require('./users');
 const books = require('./books');
 const login = require('./login');
 const categories = require('./categories');
 const myUsers = require('./myUsers');
 
+const {
+  PORT: port = 3000,
+  JWT_SECRET: jwtSecret,
+  HOST: host = '127.0.0.1',
+} = process.env;
+
+if (!jwtSecret) {
+  console.error('JWT_SECRET not registered in .env');
+  process.exit(1);
+}
+
 const app = express();
+app.use(express.json());
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: jwtSecret,
+};
+
+async function strat(data, next) {
+  const user = await users.findById(data.id);
+
+  if (user) {
+    next(null, user);
+  } else {
+    next(null, false);
+  }
+}
+
+passport.use(new Strategy(jwtOptions, strat));
+
+app.use(passport.initialize());
+
+app.get('/', (req, res) => {
+  res.json({
+    login: '/login',
+    admin: '/admin',
+  });
+});
+
+function requireAuthentication(req, res, next) {
+  return passport.authenticate(
+    'jwt',
+    { session: false },
+    (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+
+      if (!user) {
+        const error = info.name === 'TokenExpiredError' ? 'expired token' : 'invalid token';
+        return res.status(401).json({ error });
+      }
+
+      req.user = user;
+      next();
+    }
+  )(req, res, next);
+}
 
 app.use(myUsers);
 app.use(users);
@@ -38,11 +100,6 @@ function errorHandler(err, req, res, next) { // eslint-disable-line
 
 app.use(notFoundHandler);
 app.use(errorHandler);
-
-const {
-  PORT: port = 3000,
-  HOST: host = '127.0.0.1',
-} = process.env;
 
 app.listen(port, () => {
   console.info(`Server running at http://${host}:${port}/`);

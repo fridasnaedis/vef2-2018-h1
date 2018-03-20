@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { Client } = require('pg');
 
 const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost/h1';
@@ -19,14 +20,36 @@ async function query(q, values = []) {
 }
 
 /**
- * Get all users.
+ * Get all users.async function comparePasswords(password, hash) {
+  const result = await bcrypt.compare(password, hash);
+
+  return result;
+}
  *
  * @returns {Promise} Promise representing an array of all users
  */
 async function getAllUsers() {
-    const q = 'SELECT id, username, name, photourl FROM users;';
-    const result = await query(q);
-    return result.rows;
+  const q = 'SELECT id, username, name, photourl FROM users;';
+  const result = await query(q);
+  return result.rows;
+}
+
+async function comparePasswords(password, hash) {
+  const result = await bcrypt.compare(password, hash);
+
+  return result;
+}
+
+async function getByUsername(username) {
+  const q = 'SELECT * FROM users WHERE username = $1';
+
+  const result = await query(q, [username]);
+
+  if (result.rowCount === 1) {
+    return result.rows[0];
+  }
+
+  return null;
 }
 
 /**
@@ -37,10 +60,10 @@ async function getAllUsers() {
  * @returns {Promise} Promise representing the user object or null if not found
  */
 async function getOneUser(id) {
-    const q = 'SELECT id, username, name, photourl FROM users WHERE id=$1;';
-    const values = [id];
-    const result = await query(q, values);
-    return result.rows;
+  const q = 'SELECT id, username, name, photourl FROM users WHERE id=$1;';
+  const values = [id];
+  const result = await query(q, values);
+  return result.rows;
 }
 
 /**
@@ -51,14 +74,27 @@ async function getOneUser(id) {
  * @returns {Promise} Promise representing the users read books or null if not found
  */
 async function getReadBooks(id) {
-    const q = 'SELECT * FROM readBooks WHERE user_id=$1;';
-    const values = [id];
-    const result = await query(q, values);
-    return result.rows;
+  const q = 'SELECT * FROM readBooks WHERE user_id=$1;';
+  const values = [id];
+  const result = await query(q, values);
+  return result.rows;
+}
+
+async function createUser(username, password, name) {
+  const hashedPassword = await bcrypt.hash(password, 11);
+
+  const q = 'INSERT INTO users (username, password, name) VALUES ($1, $2, $3) RETURNING *';
+
+  const result = await query(q, [username, hashedPassword, name]);
+
+  return result.rows[0];
 }
 
 module.exports = {
-    getAllUsers,
-    getOneUser,
-    getReadBooks,
+  getAllUsers,
+  getOneUser,
+  getReadBooks,
+  createUser,
+  getByUsername,
+  comparePasswords,
 };
