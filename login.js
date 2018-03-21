@@ -1,9 +1,9 @@
-//TODO setja inn rétt imports
 const express = require('express');
+
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { Strategy, ExtractJwt } = require('passport-jwt');
+const { ExtractJwt } = require('passport-jwt');
 const {
   getByUsername,
   createUser,
