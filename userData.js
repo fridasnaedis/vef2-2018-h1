@@ -90,7 +90,6 @@ async function getReadBooks(id) {
 async function createUser(username, password, name) {
   const hashedPassword = await bcrypt.hash(password, 11);
 
-  // þarf ekki að checka hér á inputum ?? ------- TODO
   const q = 'INSERT INTO users (username, password, name) VALUES ($1, $2, $3) RETURNING id, username, name, photourl;';
 
   const result = await query(q, [username, hashedPassword, name]);
@@ -111,30 +110,15 @@ async function patchUser(id, data) {
 
   Object.keys(data).forEach((key) => {
     if (key === 'password') {
-      toUpdate.push(key, bcrypt.hash(data[key], 11));
+      toUpdate.push(`${key} = '${bcrypt.hash(data[key], 11)}'`);
     } else {
-      toUpdate.push(key, data[key]);
+      toUpdate.push(`${key} = '${data[key]}'`);
     }
   });
 
-  const results = await Promise.all(toUpdate)
-    .then(async (update) => {
-      const values = [id];
-      const updateStrings = [];
-      for (let i = 0; i < update.length; i += 2) {
-        if (update[i + 1] === '') {
-          return { error: 'Input empty or not allowed' };
-        }
-        updateStrings.push(`${update[i]} = '${update[i + 1]}'`);
-      }
-      if (updateStrings.length > 1) {
-        const q = `UPDATE users SET ${[...updateStrings]}  WHERE id = $1 RETURNING id, username, name, photourl;`;
-        const result = await query(q, values);
-        return result.rows;
-      }
-      return { error: 'Input empty or not allowed' };
-    });
-  return results;
+  const q = `UPDATE users SET ${[...toUpdate]}  WHERE id = $1 RETURNING id, username, name, photourl;`;
+  const result = await query(q, [id]);
+  return result.rows;
 }
 
 /**
@@ -162,27 +146,12 @@ async function postPhotoUrl(id, url) {
 async function postReadBooks(id, data) {
   const keys = [];
   const values = [id];
-  const errors = [];
 
   Object.keys(data).forEach((key) => {
-    if (key === 'stars' && !(data[key] <= 5 && data[key] >= 1)) {
-      errors.push('Star rating must be integer from 1 to 5');
-    }
-    if (key === 'review') {
-      values.push(`'${data[key]}'`);
-    } else {
-      values.push(data[key]);
-    }
+    values.push(`'${data[key]}'`);
     keys.push(key);
   });
 
-  if (!(keys.includes('book_id') && keys.includes('stars'))) {
-    errors.push('book_id and stars cant be null');
-  }
-
-  if (errors.length > 0) {
-    return { error: errors };
-  }
   const q = `INSERT INTO readbooks (user_id, ${[...keys]}) VALUES (${[...values]}) RETURNING *;`;
   const result = await query(q);
   return result.rows[0];

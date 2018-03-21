@@ -87,7 +87,6 @@ async function getABookByISBN13(isbn13 = '') {
 // Uppfærir upplýsingar um bók út frá id númeri
 async function patchABookById(id, data) {
   const update = [];
-  // const stringKeys = ['title', 'author', 'description', 'category', 'published', 'language'];
 
   Object.keys(data).forEach((key) => {
     update.push(`${key} = '${data[key]}'`);
