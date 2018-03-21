@@ -45,7 +45,7 @@ function validateBook(data) {
 }
 // Skilar síðu af bókum
 async function getBooks(req, res) {
-  let { search, offset = 0, limit = 10 } = req.query;
+  let { search, offset = 0, limit = 10 } = req.query; // eslint-disable-line
   offset = Number(offset);
   limit = Number(limit);
 
@@ -61,13 +61,13 @@ async function getBooks(req, res) {
     };
 
     if (offset > 0) {
-      result._links.prev = {
+      result._links.prev = { // eslint-disable-line
         href: `http://localhost:${port}/books?offset=${offset - limit}&limit=${limit}`,
       };
     }
 
     if (rows.length <= limit) {
-      result._links.next = {
+     result._links.prev = { // eslint-disable-line
         href: `http://localhost:${port}/books?offset=${Number(offset) + limit}&limit=${limit}`,
       };
     }

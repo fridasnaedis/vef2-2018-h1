@@ -15,6 +15,7 @@ function requireAuthentication(req, res, next) {
 
       req.user = user;
       next();
+      return null;
     },
   )(req, res, next);
 }

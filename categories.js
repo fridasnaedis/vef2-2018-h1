@@ -48,13 +48,13 @@ async function getCategories(req, res) {
     };
 
     if (offset > 0) {
-      result._links.prev = {
+      result._links.prev = { // eslint-disable-line
         href: `http://localhost:${port}/categories?offset=${offset - limit}&limit=${limit}`,
       };
     }
 
     if (rows.length <= limit) {
-      result._links.next = {
+      result._links.prev = { // eslint-disable-line
         href: `http://localhost:${port}/categories?offset=${Number(offset) + limit}&limit=${limit}`,
       };
     }
