@@ -1,7 +1,15 @@
 const express = require('express');
 const { requireAuthentication } = require('./authentication');
+const multer = require('multer');
+const cloudinary = require('cloudinary');
 
 const router = express.Router();
+const uploads = multer({ dest: './temp' });
+cloudinary.config({
+  cloud_name: 'vef2018h1',
+  api_key: '588168283815115',
+  api_secret: '5j3xZn2fw8Vpu9WwGxsOjh-QkUI',
+});
 
 const {
   getOneUser,
@@ -11,7 +19,6 @@ const {
   postReadBooks,
   deleteReadBook,
 } = require('./userData');
-
 
 // skilar innskráðum notanda þ.e.a.s. þér
 async function getMyUser(req, res) {
@@ -34,13 +41,23 @@ async function patchMyUser(req, res) {
 }
 
 // setur eða uppfærir mynd fyrir notanda í gegnum Cloudinary og skilar slóð
-async function postMyUserProfile(req, res) {
-  // - þarf að nota Cloudinary ????? idk skoða
-  const { id } = req.user;
-  const url = req.body.photourl;
-  const postProfile = await postPhotoUrl(id, url);
+async function postMyUserProfile(req, res, next) {
+  const { file: { path } = {} } = req;
 
-  res.status(200).json(postProfile);
+  if (!path) { return res.send('gat ekki lesið mynd'); }
+
+  let upload = null;
+  try {
+    upload = await cloudinary.v2.uploader.upload(path);
+  } catch (error) {
+    console.error('Unable to upload file to cloudinary:', path);
+    return next(error);
+  }
+
+  const { id } = req.user;
+  const { url } = upload;
+  const postProfile = await postPhotoUrl(id, url);
+  return res.status(200).json(postProfile);
 }
 
 // skilar síðu af lesnum bókum innskráðs notanda
@@ -60,6 +77,7 @@ async function postMyReadBooks(req, res) {
   res.status(200).json(readBooks);
 }
 
+// Eyðir lestur á bók
 async function deleteMyReadBooksById(req, res) {
   const userId = req.user.id;
   const readId = req.params.id;
@@ -68,10 +86,10 @@ async function deleteMyReadBooksById(req, res) {
   res.status(200).json(deleteRead);
 }
 
-/* todo útfæra api */
+/* útfæra api */
 router.get('/users/me', requireAuthentication, getMyUser);
 router.patch('/users/me', requireAuthentication, patchMyUser);
-router.post('/users/me/profile', requireAuthentication, postMyUserProfile);
+router.post('/users/me/profile', requireAuthentication, uploads.single('image'), postMyUserProfile);
 router.get('/users/me/read', requireAuthentication, getMyReadBooks);
 router.post('/users/me/read', requireAuthentication, postMyReadBooks);
 router.delete('/users/me/read/:id', requireAuthentication, deleteMyReadBooksById);
