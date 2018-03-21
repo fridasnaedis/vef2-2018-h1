@@ -6,9 +6,8 @@ const validator = require('validator');
 const { requireAuthentication } = require('./authentication');
 const xss = require('xss');
 const {
-  getAllBooks,
+  getBooksByQ,
   postABook,
-  searchAllBooks,
   getABookById,
   patchABookById,
 } = require('./bookData');
@@ -19,7 +18,6 @@ function catchErrors(fn) {
 
 function validateBook({ title, isbn13 }) {
   const errors = [];
-
   if (typeof title !== 'string' || !validator.isLength(title, { min: 1 })) {
     errors.push({
       field: 'title',
@@ -33,12 +31,12 @@ function validateBook({ title, isbn13 }) {
       message: 'ISBN13 must be a string of numbers of length 13',
     });
   }
-  // Þarf fleiri?
   return errors;
 }
 // Skilar síðu af bókum
 async function getBooks(req, res) {
-  const response = await getAllBooks();
+  const { search = '' } = req.query;
+  const response = await getBooksByQ(search);
   if (response.length > 0) {
     res.json(response);
     return;
@@ -61,8 +59,8 @@ async function postBook(req, res) {
   } = req.body;
 
   const validation = validateBook({ title, isbn13 });
-  if (!validation.isEmpty()) {
-    const errors = validation.array().map(err => err.msg);
+  if (validation.length > 0) {
+    const errors = validation.map(err => err.msg);
     res.status(400).json(errors);
     return;
   }
@@ -78,29 +76,20 @@ async function postBook(req, res) {
     language: xss(language).trim(),
   };
   const response = await postABook(values);
-  // Vantar pælingar með ef category er ekki til
-  res.status(201).json(response);
-}
-
-// skilar síðu af bókum sem uppfylla leitarskilyrði, sjá að neðan
-async function searchBooks(req, res) {
-  const { query } = req.body; // Pottó ekki rétta leiðin /books?search=query
-  const cleanQuery = xss(query).trim();
-  const response = searchAllBooks(cleanQuery);
-  if (response.length > 0) {
-    res.json(response);
+  if (Object.keys(response).length === 0 && response.constructor === Object) {
+    res.status(400).json('Chosen category does not exist. Please choose an existing category or create a new category');
     return;
   }
-  res.status(404).json({ error: 'No books found' });
+  res.status(201).json(response);
 }
 
 // skilar stakri bók
 async function getBookById(req, res) {
-  const { id } = req.body;
+  const { id } = req.params;
   const cleanId = xss(id).trim();
-  const response = getABookById(cleanId);
+  const response = await getABookById(cleanId);
   if (response.length > 0) {
-    res.json(...response);
+    res.json(response);
     return;
   }
   res.status(404).json({ error: 'No book found' });
@@ -112,9 +101,8 @@ async function patchBookById(req, res) {
 
 /* todo útfæra api */
 router.get('/books', catchErrors(getBooks));
-router.post('/books', requireAuthentication, catchErrors(postBook));
-router.get('/books?search=query', catchErrors(searchBooks));
 router.get('/books/:id', requireAuthentication, catchErrors(getBookById));
+router.post('/books', catchErrors(postBook));
 router.patch('/books/:id', requireAuthentication, catchErrors(patchBookById));
 
 module.exports = router;
