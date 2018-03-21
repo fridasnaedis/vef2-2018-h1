@@ -36,7 +36,6 @@ async function getBooksByQ(search, offset = 0, limit = 10) {
     `;
     result = await query(q, [search, offset, limit]);
   }
-  console.log(result.rows);
   return result.rows;
 }
 

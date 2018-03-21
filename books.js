@@ -16,7 +16,7 @@ const { getACategory } = require('./categoriesData');
 
 const port = 3000;
 
-// Grípur villur 
+// Grípur villur
 function catchErrors(fn) {
   return (req, res, next) => fn(req, res, next).catch(next);
 }
@@ -50,7 +50,6 @@ async function getBooks(req, res) {
   limit = Number(limit);
 
   const rows = await getBooksByQ(search, offset, limit);
-  console.log(rows);
   if (rows.length > 0) {
     const result = {
       _links: {
