@@ -13,25 +13,29 @@ const {
   getABookByTitle,
   getABookByISBN13,
 } = require('./bookData');
+const { getACategory } = require('./categoriesData');
 
 function catchErrors(fn) {
   return (req, res, next) => fn(req, res, next).catch(next);
 }
 
-function validateBook({ title, isbn13 }) {
+function validateBook(data) {
   const errors = [];
-  if (typeof title !== 'string' || !validator.isLength(title, { min: 1 })) {
-    errors.push({
-      field: 'title',
-      message: 'Title must be a non-empty string',
-    });
+  if (Object.keys(data).includes('title')) {
+    if (typeof data.title !== 'string' || !validator.isLength(data.title, { min: 1 })) {
+      errors.push({
+        field: 'title',
+        msg: 'Title must be a non-empty string',
+      });
+    }
   }
-
-  if (typeof isbn13 !== 'string' || !validator.isLength(isbn13, 13) || !validator.isNumeric(isbn13)) {
-    errors.push({
-      field: 'isbn13',
-      message: 'ISBN13 must be a string of numbers of length 13',
-    });
+  if (Object.keys(data).includes('isbn13')) {
+    if (typeof data.isbn13 !== 'string' || !validator.isLength(data.isbn13, { min: 13, max: 13 }) || !validator.isNumeric(data.isbn13)) {
+      errors.push({
+        field: 'isbn13',
+        msg: 'ISBN13 must be a string of numbers of length 13',
+      });
+    }
   }
   return errors;
 }
@@ -63,7 +67,7 @@ async function postBook(req, res) {
   const validation = validateBook({ title, isbn13 });
   if (validation.length > 0) {
     const errors = validation.map(err => err.msg);
-    res.status(400).json(errors);
+    res.status(400).json({ errors });
     return;
   }
   const values = {
@@ -109,6 +113,53 @@ async function getBookById(req, res) {
 
 // Uppfærir bók
 async function patchBookById(req, res) {
+  const id = xss(req.params.id).trim();
+  const data = req.body;
+  const toValidate = {};
+
+  Object.keys(data).forEach((key) => {
+    data[key] = xss(data[key]).trim();
+  });
+
+  const responseBookDosntExist = await getABookById(id);
+  if (responseBookDosntExist.length !== 1) {
+    res.status(400).json('No book with this id exists.');
+    return;
+  }
+
+  if (Object.keys(data).includes('title')) {
+    toValidate.title = data.title;
+    const responseTitleExists = await getABookByTitle(data.title);
+    if (responseTitleExists.length > 0 && responseTitleExists[0].id.toString() !== id) {
+      res.status(400).json('A book with this title already exists.');
+      return;
+    }
+  }
+  if (Object.keys(data).includes('isbn13')) {
+    toValidate.isbn13 = data.isbn13;
+    const responseISBN13Exists = await getABookByISBN13(data.isbn13);
+    if (responseISBN13Exists.length > 0 && responseISBN13Exists[0].id.toString() !== id) {
+      res.status(400).json('A book with this ISBN13 already exists.');
+      return;
+    }
+  }
+  if (Object.keys(data).includes('category')) {
+    const responseCategoryExists = await getACategory(data.category);
+    if (responseCategoryExists.length < 1) {
+      res.status(400).json('Chosen category does not exist. Please choose an existing category or create a new category');
+      return;
+    }
+  }
+
+  const validation = await validateBook(toValidate);
+  if (validation.length > 0) {
+    const errors = validation.map(err => err.msg);
+    res.status(400).json({ errors });
+    return;
+  }
+
+  const response = await patchABookById(id, data);
+  res.status(201).json(response);
 }
 
 /* todo útfæra api */

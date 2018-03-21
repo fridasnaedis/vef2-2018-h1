@@ -77,8 +77,17 @@ async function getABookByISBN13(isbn13 = '') {
   return result.rows;
 }
 
-async function patchABookById() {
+async function patchABookById(id, data) {
+  const update = [];
+  // const stringKeys = ['title', 'author', 'description', 'category', 'published', 'language'];
 
+  Object.keys(data).forEach((key) => {
+    update.push(`${key} = '${data[key]}'`);
+  });
+
+  const q = `UPDATE library SET ${[...update]} WHERE id=$1 RETURNING *;`;
+  const result = await query(q, [id]);
+  return result.rows[0];
 }
 
 module.exports = {

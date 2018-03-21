@@ -16,7 +16,6 @@ const {
 // skilar innskráðum notanda þ.e.a.s. þér
 async function getMyUser(req, res) {
   const { id } = req.user;
-  // check login --- get id --- TODO
 
   const user = await getOneUser(id);
   res.status(200).json(user);
