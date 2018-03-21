@@ -167,7 +167,7 @@ async function postMyReadBooks(req, res) {
   }
 
   const readBooks = await postReadBooks(id, data);
-  return res.status(200).json(readBooks);
+  return res.status(201).json(readBooks);
 }
 
 // Eyðir lestur á bók

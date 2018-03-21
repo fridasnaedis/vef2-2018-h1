@@ -22,15 +22,21 @@ async function getUsers(req, res) {
 // Skilar stökum notendum ef til (ekkert lykilorð)
 async function getUsersById(req, res) {
   const { id } = req.params;
-  const user = await getOneUser(id);
-  res.status(200).json(user);
+  const response = await getOneUser(id);
+  if (response.length < 1) {
+    res.status(404).json({ error: 'User not found' });
+  }
+  res.status(200).json(response);
 }
 
 // Skilar síðu af bókum sem uppfylla leitarskilyrði, sjá að neðan
 async function getReadBooksByUsersId(req, res) {
   const { id } = req.params;
-  const readBooks = await getReadBooks(id);
-  res.status(200).json(readBooks);
+  const response = await getReadBooks(id);
+  if (response.length < 1) {
+    res.status(404).json({ error: 'User not found' });
+  }
+  res.status(200).json(response);
 }
 
 /* todo útfæra api */
