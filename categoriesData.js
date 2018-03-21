@@ -28,20 +28,25 @@ async function getAllCategories() {
   return result.rows;
 }
 
+async function getACategory(category) {
+  const q = 'SELECT * FROM categories WHERE category = $1';
+  const result = await query(q, [category]);
+  return result.rows;
+}
 
 /**
  * Post a new category
  *
  *
  */
-async function postACategory({ id, category } = {}) {
-  const q = 'INSERT INTO categories(id, category) VALUES($1, $2) RETURNING*;';
-  const values = [id, category];
-  const result = await query(q, values);
+async function postACategory(category) {
+  const q = 'INSERT INTO categories(category) VALUES($1) RETURNING*;';
+  const result = await query(q, [category]);
   return result.rows;
 }
 
 module.exports = {
   getAllCategories,
   postACategory,
+  getACategory,
 };
