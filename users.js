@@ -7,8 +7,11 @@ const {
   getReadBooks,
 } = require('./userData');
 
-
 const router = express.Router();
+
+function catchErrors(fn) {
+  return (req, res, next) => fn(req, res, next).catch(next);
+}
 
 // Skilar síðu af notendum (ekkert lykilorð)
 async function getUsers(req, res) {
@@ -31,8 +34,8 @@ async function getReadBooksByUsersId(req, res) {
 }
 
 /* todo útfæra api */
-router.get('/users', requireAuthentication, getUsers);
-router.get('/users/:id', requireAuthentication, getUsersById);
-router.get('/users/:id/read', requireAuthentication, getReadBooksByUsersId);
+router.get('/users', requireAuthentication, catchErrors(getUsers));
+router.get('/users/:id', requireAuthentication, catchErrors(getUsersById));
+router.get('/users/:id/read', requireAuthentication, catchErrors(getReadBooksByUsersId));
 
 module.exports = router;
