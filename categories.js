@@ -5,6 +5,8 @@ const xss = require('xss');
 
 const router = express.Router();
 
+const port = 3000;
+
 const {
   getAllCategories,
   postACategory,
@@ -30,10 +32,34 @@ function validateCategory({ category }) {
 
 // Skilar síðu af flokkum
 async function getCategories(req, res) {
-  const response = await getAllCategories();
-  if (response.length > 0) {
-    res.json(response);
-    return;
+  let { offset = 0, limit = 10 } = req.query;
+  offset = Number(offset);
+  limit = Number(limit);
+
+  const rows = await getAllCategories(offset, limit);
+  if (rows.length > 0) {
+    const result = {
+      _links: {
+        self: {
+          href: `http://localhost:${port}/categories?offset=${offset}&limit=${limit}`,
+        },
+      },
+      items: rows,
+    };
+
+    if (offset > 0) {
+      result._links.prev = {
+        href: `http://localhost:${port}/categories?offset=${offset - limit}&limit=${limit}`,
+      };
+    }
+
+    if (rows.length <= limit) {
+      result._links.next = {
+        href: `http://localhost:${port}/categories?offset=${Number(offset) + limit}&limit=${limit}`,
+      };
+    }
+
+    res.json(result);
   }
   res.status(404).json({ error: 'No categories found' });
 }
@@ -58,6 +84,7 @@ async function postCategories(req, res) {
 }
 
 /* todo útfæra api */
+
 router.get('/categories', catchErrors(getCategories));
 router.post('/categories', requireAuthentication, catchErrors(postCategories));
 

@@ -18,25 +18,29 @@ async function query(q, values = []) {
   return result;
 }
 
-async function getBooksByQ(search) {
+// sækir bók út frá query string
+async function getBooksByQ(search, offset = 0, limit = 10) {
   let q;
   let result;
-  if (search === '') {
-    q = 'SELECT * FROM library';
-    result = await query(q);
+  if (!search) {
+    q = 'SELECT * FROM library ORDER BY id OFFSET $1 LIMIT $2;';
+    result = await query(q, [offset, limit]);
   } else {
     q = `
     SELECT * FROM library
     WHERE 
       to_tsvector('english', title) @@ to_tsquery('english', $1) 
       OR
-      to_tsvector('english', description) @@ to_tsquery('english', $1)
+      to_tsvector('english', description) @@ to_tsquery('english', $1) 
+      ORDER BY id OFFSET $2 LIMIT $3
     `;
-    result = await query(q, [search]);
+    result = await query(q, [search, offset, limit]);
   }
+  console.log(result.rows);
   return result.rows;
 }
 
+// Bætir við bók í bókasafn
 async function postABook({
   title, isbn13, author, description, category, isbn10, published, pagecount, language,
 } = {}) {
@@ -59,24 +63,28 @@ async function postABook({
   return result.rows;
 }
 
+// Sækir bók út frá id
 async function getABookById(id = '') {
   const q = 'SELECT * FROM library WHERE id=$1';
   const result = await query(q, [id]);
   return result.rows;
 }
 
+// Sækir bók út frá titil
 async function getABookByTitle(title = '') {
   const q = 'SELECT * FROM library WHERE title=$1';
   const result = await query(q, [title]);
   return result.rows;
 }
 
+// Sækir bók út frá isbn13 númeri
 async function getABookByISBN13(isbn13 = '') {
   const q = 'SELECT * FROM library WHERE isbn13=$1';
   const result = await query(q, [isbn13]);
   return result.rows;
 }
 
+// Uppfærir upplýsingar um bók út frá id númeri
 async function patchABookById(id, data) {
   const update = [];
   // const stringKeys = ['title', 'author', 'description', 'category', 'published', 'language'];

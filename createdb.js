@@ -29,6 +29,8 @@ async function query(q) {
   }
 }
 
+
+// Býr til database
 async function create() {
   const data = await readFileAsync(schemaFile);
 

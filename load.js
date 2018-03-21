@@ -20,7 +20,7 @@ async function query(q, values = []) {
   }
   return result;
 }
-
+// Hleður inn gögnum í database
 async function loadToDb(jsonObj) {
   const categories = [];
 

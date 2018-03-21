@@ -1,4 +1,3 @@
-// TODO setja inn rétt imports
 const express = require('express');
 
 const router = express.Router();
@@ -15,10 +14,15 @@ const {
 } = require('./bookData');
 const { getACategory } = require('./categoriesData');
 
+const port = 3000;
+
+// Grípur villur 
 function catchErrors(fn) {
   return (req, res, next) => fn(req, res, next).catch(next);
 }
 
+// Athugar hvort ´bok sem sett er inn innihaldi key values og á réttu formi
+// Key values eru titel og ibn13
 function validateBook(data) {
   const errors = [];
   if (Object.keys(data).includes('title')) {
@@ -41,11 +45,35 @@ function validateBook(data) {
 }
 // Skilar síðu af bókum
 async function getBooks(req, res) {
-  const { search = '' } = req.query;
-  const response = await getBooksByQ(search);
-  if (response.length > 0) {
-    res.json(response);
-    return;
+  let { search, offset = 0, limit = 10 } = req.query;
+  offset = Number(offset);
+  limit = Number(limit);
+
+  const rows = await getBooksByQ(search, offset, limit);
+  console.log(rows);
+  if (rows.length > 0) {
+    const result = {
+      _links: {
+        self: {
+          href: `http://localhost:${port}/books?offset=${offset}&limit=${limit}`,
+        },
+      },
+      items: rows,
+    };
+
+    if (offset > 0) {
+      result._links.prev = {
+        href: `http://localhost:${port}/books?offset=${offset - limit}&limit=${limit}`,
+      };
+    }
+
+    if (rows.length <= limit) {
+      result._links.next = {
+        href: `http://localhost:${port}/books?offset=${Number(offset) + limit}&limit=${limit}`,
+      };
+    }
+
+    res.json(result);
   }
   res.status(404).json({ error: 'No books found' });
 }
@@ -166,6 +194,7 @@ async function patchBookById(req, res) {
 router.get('/books', catchErrors(getBooks));
 router.get('/books/:id', requireAuthentication, catchErrors(getBookById));
 router.post('/books', requireAuthentication, catchErrors(postBook));
+router.post(`(books$search=${q}`, requireAuthentication, catchErrors(getBooks));
 router.patch('/books/:id', requireAuthentication, catchErrors(patchBookById));
 
 module.exports = router;
