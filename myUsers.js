@@ -5,10 +5,16 @@ const cloudinary = require('cloudinary');
 
 const router = express.Router();
 const uploads = multer({ dest: './temp' });
+const {
+  CLOUDINARY_CLOUD,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+} = process.env;
+
 cloudinary.config({
-  cloud_name: 'vef2018h1',
-  api_key: '588168283815115',
-  api_secret: '5j3xZn2fw8Vpu9WwGxsOjh-QkUI',
+  cloud_name: CLOUDINARY_CLOUD,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
 });
 
 const {
