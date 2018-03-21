@@ -193,7 +193,6 @@ async function patchBookById(req, res) {
 router.get('/books', catchErrors(getBooks));
 router.get('/books/:id', requireAuthentication, catchErrors(getBookById));
 router.post('/books', requireAuthentication, catchErrors(postBook));
-router.post(`(books$search=${q}`, requireAuthentication, catchErrors(getBooks));
 router.patch('/books/:id', requireAuthentication, catchErrors(patchBookById));
 
 module.exports = router;
