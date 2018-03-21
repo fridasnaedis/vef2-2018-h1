@@ -61,7 +61,19 @@ async function postABook({
 
 async function getABookById(id = '') {
   const q = 'SELECT * FROM library WHERE id=$1';
-  const result = await query(q);
+  const result = await query(q, [id]);
+  return result.rows;
+}
+
+async function getABookByTitle(title = '') {
+  const q = 'SELECT * FROM library WHERE title=$1';
+  const result = await query(q, [title]);
+  return result.rows;
+}
+
+async function getABookByISBN13(isbn13 = '') {
+  const q = 'SELECT * FROM library WHERE isbn13=$1';
+  const result = await query(q, [isbn13]);
   return result.rows;
 }
 
@@ -74,5 +86,7 @@ module.exports = {
   postABook,
   getABookById,
   patchABookById,
+  getABookByTitle,
+  getABookByISBN13,
 };
 

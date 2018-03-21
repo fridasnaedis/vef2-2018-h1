@@ -10,6 +10,8 @@ const {
   postABook,
   getABookById,
   patchABookById,
+  getABookByTitle,
+  getABookByISBN13,
 } = require('./bookData');
 
 function catchErrors(fn) {
@@ -21,7 +23,7 @@ function validateBook({ title, isbn13 }) {
   if (typeof title !== 'string' || !validator.isLength(title, { min: 1 })) {
     errors.push({
       field: 'title',
-      message: 'Title must be a string of length 1',
+      message: 'Title must be a non-empty string',
     });
   }
 
@@ -75,6 +77,16 @@ async function postBook(req, res) {
     pagecount: xss(pagecount).trim(),
     language: xss(language).trim(),
   };
+  const responseISBN13Exists = await getABookByISBN13(values.isbn13);
+  if (responseISBN13Exists.length > 0) {
+    res.status(400).json('A book with this ISBN13 already exists.');
+    return;
+  }
+  const responseTitleExists = await getABookByTitle(values.title);
+  if (responseTitleExists.length > 0) {
+    res.status(400).json('A book with this title already exists.');
+    return;
+  }
   const response = await postABook(values);
   if (Object.keys(response).length === 0 && response.constructor === Object) {
     res.status(400).json('Chosen category does not exist. Please choose an existing category or create a new category');
@@ -102,7 +114,7 @@ async function patchBookById(req, res) {
 /* todo útfæra api */
 router.get('/books', catchErrors(getBooks));
 router.get('/books/:id', requireAuthentication, catchErrors(getBookById));
-router.post('/books', catchErrors(postBook));
+router.post('/books', requireAuthentication, catchErrors(postBook));
 router.patch('/books/:id', requireAuthentication, catchErrors(patchBookById));
 
 module.exports = router;

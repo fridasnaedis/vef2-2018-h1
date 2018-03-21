@@ -3,35 +3,32 @@ const { requireAuthentication } = require('./authentication');
 
 const router = express.Router();
 
-const { 
+const {
   getAllUsers,
   getOneUser,
   getReadBooks,
   patchUser,
   postPhotoUrl,
   postReadBooks,
-  } =  require('./userData');
-
+} = require('./userData');
 
 
 // skilar innskráðum notanda þ.e.a.s. þér
 async function getMyUser(req, res) {
-
   console.log(req.user);
 
-  const id = req.user.id; 
+  const { id } = req.user;
   // check login --- get id --- TODO
 
-  const user = await getOneUser(id); 
+  const user = await getOneUser(id);
   res.status(200).json(user);
 }
 
 // Uppfærir sendar upplýsingar um notanda fyrir utan notendanafn,
 // þ.e.a.s. nafn eða lykilorð, ef þau eru gild
 async function patchMyUser(req, res) {
-
-  // check inputs ---- no hackers 
-  const id = req.user.id; 
+  // check inputs ---- no hackers
+  const { id } = req.user;
   const data = req.body;
 
   const updatedUser = await patchUser(id, data);
@@ -41,9 +38,8 @@ async function patchMyUser(req, res) {
 
 // setur eða uppfærir mynd fyrir notanda í gegnum Cloudinary og skilar slóð
 async function postMyUserProfile(req, res) {
-  
-  // - þarf að nota Cloudinary ????? idk skoða 
-  const id = req.user.id;
+  // - þarf að nota Cloudinary ????? idk skoða
+  const { id } = req.user;
   const url = req.body.photourl;
   const postProfile = await postPhotoUrl(id, url);
 
@@ -53,14 +49,14 @@ async function postMyUserProfile(req, res) {
 
 // skilar síðu af lesnum bókum innskráðs notanda
 async function getMyReadBooks(req, res) {
-  const id = req.user.id;
+  const { id } = req.user;
   const readBooks = await getReadBooks(id);
   res.status(200).json(readBooks);
 }
 
 // Býr til nýjan lestur á bók og skilar
 async function postMyReadBooks(req, res) {
-  const id = req.user.id;
+  const { id } = req.user;
   const data = req.body;
   const readBooks = await postReadBooks(id, data);
   res.status(200).json(readBooks);
