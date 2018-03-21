@@ -180,12 +180,32 @@ async function postReadBooks(id, data) {
     errors.push('book_id and stars cant be null');
   }
 
-  if (errors.length >= 1) {
+  if (errors.length > 0) {
     return { error: errors };
   }
   const q = `INSERT INTO readbooks (user_id, ${[...keys]}) VALUES (${[...values]}) RETURNING *;`;
   const result = await query(q);
   return result.rows[0];
+}
+
+
+/**
+ * Delete a read book
+ *
+ * @param {number} Id - Id of user, {number} read_id - Id of read book
+ *
+ * @returns {Promise} Promise representing deleted book from read books
+ */
+async function deleteReadBook(userId, bookId) {
+  const values = [userId, bookId];
+  const check = 'SELECT* FROM readbooks WHERE user_id = $1 AND id = $2';
+  const found = await query(check, values);
+  if (found.rowCount < 1) {
+    return { error: 'Read book not found' };
+  }
+  const q = 'DELETE FROM readbooks WHERE user_id = $1 AND id = $2';
+  await query(q, values);
+  return { deleted: 'ok' };
 }
 
 module.exports = {
@@ -198,4 +218,5 @@ module.exports = {
   patchUser,
   postPhotoUrl,
   postReadBooks,
+  deleteReadBook,
 };
