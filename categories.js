@@ -54,7 +54,7 @@ async function getCategories(req, res) {
     }
 
     if (rows.length <= limit) {
-      result._links.prev = { // eslint-disable-line
+      result._links.next = { // eslint-disable-line
         href: `http://localhost:${port}/categories?offset=${Number(offset) + limit}&limit=${limit}`,
       };
     }
