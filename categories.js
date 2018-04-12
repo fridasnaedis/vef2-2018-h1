@@ -41,7 +41,7 @@ async function getCategories(req, res) {
     const result = {
       _links: {
         self: {
-          href: `pactgreining.herokuapp.com/categories?offset=${offset}&limit=${limit}`,
+          href: `/categories?offset=${offset}&limit=${limit}`,
         },
       },
       items: rows,
@@ -49,13 +49,13 @@ async function getCategories(req, res) {
 
     if (offset > 0) {
       result._links.prev = { // eslint-disable-line
-        href: `pactgreining.herokuapp.com/categories?offset=${offset - limit}&limit=${limit}`,
+        href: `/categories?offset=${offset - limit}&limit=${limit}`,
       };
     }
 
     if (rows.length <= limit) {
       result._links.next = { // eslint-disable-line
-        href: `pactgreining.herokuapp.com/categories?offset=${Number(offset) + limit}&limit=${limit}`,
+        href: `/categories?offset=${Number(offset) + limit}&limit=${limit}`,
       };
     }
 
