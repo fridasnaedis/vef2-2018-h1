@@ -1,13 +1,14 @@
-#Hópverkefni 1 - vefforritun 2 - 2018
+# Hópverkefni 1 - vefforritun 2 - 2018
 
-##Meðlimir hóps :
-###Fríða Snædís Jóhannesdóttir - fsj3@hi.is
-###Hinrik Snær Guðmundsson - hsg30@hi.is
-###Ísak Arnar Kolbeins - iak5@hi.is
-###Júlís Reynald Björnsson - jrb4@hi.is
+## Meðlimir hóps :
+### Fríða Snædís Jóhannesdóttir - fsj3@hi.is
+### Hinrik Snær Guðmundsson - hsg30@hi.is
+### Ísak Arnar Kolbeins - iak5@hi.is
+### Júlís Reynald Björnsson - jrb4@hi.is
 
 
-##Keyrsla:
+## Keyrsla:
+
 
 Í console/terminal: npm install - nær í npm pakkana sem þú þarft
                     createdb h1 - í sql til að búa til gagnagrunn h1
